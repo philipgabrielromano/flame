@@ -17,7 +17,7 @@ const Logger = require('./utils/Logger');
 const logger = new Logger();
 
 (async () => {
-  const PORT = process.env.PORT || 5005;
+  const PORT = process.env.PORT || 5000;
 
   // Init app
   await initApp();

@@ -2,15 +2,15 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function (app) {
   const apiProxy = createProxyMiddleware('/api', {
-    target: 'http://localhost:5005'
+    target: 'http://localhost:5000'
   })
 
   const assetsProxy = createProxyMiddleware('/uploads', {
-    target: 'http://localhost:5005'
+    target: 'http://localhost:5000'
   })
 
   const wsProxy = createProxyMiddleware('/socket', {
-    target: 'http://localhost:5005',
+    target: 'http://localhost:5000',
     ws: true
   })
 
