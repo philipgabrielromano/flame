@@ -32,4 +32,5 @@ Flame is a self-hosted start page for your server. It allows you to organize and
 - For deployment, the build step rebuilds the client and copies to public
 
 ## Recent Changes
+- 2026-02-20: Added logo upload feature - users can upload/remove a custom logo from Settings > Interface, displayed above the greeting on the home page
 - 2026-02-20: Initial Replit setup - configured environment variables, built React client, set up workflow on port 5000
