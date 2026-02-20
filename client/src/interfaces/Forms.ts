@@ -32,6 +32,7 @@ export interface UISettingsForm {
   hideDate: boolean;
   hideSearch: boolean;
   disableAutofocus: boolean;
+  customLogo: string;
 }
 
 export interface DockerSettingsForm {

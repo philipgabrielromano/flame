@@ -16,7 +16,7 @@ import { getDateTime } from './functions/getDateTime';
 import { greeter } from './functions/greeter';
 
 export const Header = (): JSX.Element => {
-  const { hideHeader, hideDate, showTime } = useSelector(
+  const { hideHeader, hideDate, showTime, customLogo } = useSelector(
     (state: State) => state.config.config
   );
 
@@ -36,6 +36,16 @@ export const Header = (): JSX.Element => {
 
   return (
     <header className={classes.Header}>
+      {customLogo && (
+        <div className={classes.LogoContainer}>
+          <img
+            src={`/uploads/${customLogo}`}
+            alt="Logo"
+            className={classes.Logo}
+          />
+        </div>
+      )}
+
       {(!hideDate || showTime) && <p>{dateTime}</p>}
 
       <Link to="/settings" className={classes.SettingsLink}>

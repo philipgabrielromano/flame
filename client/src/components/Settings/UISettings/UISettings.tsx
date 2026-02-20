@@ -1,4 +1,5 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
+import axios from 'axios';
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,42 +8,43 @@ import { bindActionCreators } from 'redux';
 import { actionCreators } from '../../../store';
 
 // Typescript
-import { UISettingsForm } from '../../../interfaces';
+import { UISettingsForm, ApiResponse, Config } from '../../../interfaces';
 
 // UI
 import { InputGroup, Button, SettingsHeadline } from '../../UI';
 
 // Utils
-import { uiSettingsTemplate, inputHandler } from '../../../utility';
+import { uiSettingsTemplate, inputHandler, applyAuth } from '../../../utility';
 
 export const UISettings = (): JSX.Element => {
   const { loading, config } = useSelector((state: State) => state.config);
 
   const dispatch = useDispatch();
-  const { updateConfig } = bindActionCreators(actionCreators, dispatch);
+  const { updateConfig, createNotification } = bindActionCreators(
+    actionCreators,
+    dispatch
+  );
 
-  // Initial state
   const [formData, setFormData] = useState<UISettingsForm>(uiSettingsTemplate);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Get config
   useEffect(() => {
     setFormData({
       ...config,
     });
+    if (config.customLogo) {
+      setLogoPreview(`/uploads/${config.customLogo}`);
+    }
   }, [loading]);
 
-  // Form handler
   const formSubmitHandler = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Save settings
     await updateConfig(formData);
-
-    // Update local page title
     document.title = formData.customTitle;
   };
 
-  // Input handler
   const inputChangeHandler = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     options?: { isNumber?: boolean; isBool?: boolean }
@@ -53,6 +55,96 @@ export const UISettings = (): JSX.Element => {
       setStateHandler: setFormData,
       state: formData,
     });
+  };
+
+  const logoFileChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setLogoFile(e.target.files[0]);
+      setLogoPreview(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
+  const uploadLogoHandler = async () => {
+    if (!logoFile) {
+      createNotification({
+        title: 'Error',
+        message: 'Please select a file first',
+      });
+      return;
+    }
+
+    const formDataUpload = new FormData();
+    formDataUpload.append('logo', logoFile);
+
+    try {
+      const res = await axios.post<ApiResponse<Config>>(
+        '/api/config/0/logo',
+        formDataUpload,
+        {
+          headers: {
+            ...applyAuth(),
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      setFormData({ ...formData, customLogo: res.data.data.customLogo });
+      setLogoPreview(`/uploads/${res.data.data.customLogo}`);
+      setLogoFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      createNotification({
+        title: 'Success',
+        message: 'Logo uploaded successfully',
+      });
+
+      dispatch({
+        type: 'UPDATE_CONFIG',
+        payload: res.data.data,
+      });
+    } catch (err) {
+      console.log(err);
+      createNotification({
+        title: 'Error',
+        message: 'Failed to upload logo',
+      });
+    }
+  };
+
+  const deleteLogoHandler = async () => {
+    try {
+      const res = await axios.delete<ApiResponse<Config>>(
+        '/api/config/0/logo',
+        {
+          headers: applyAuth(),
+        }
+      );
+
+      setFormData({ ...formData, customLogo: '' });
+      setLogoPreview('');
+      setLogoFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      createNotification({
+        title: 'Success',
+        message: 'Logo removed successfully',
+      });
+
+      dispatch({
+        type: 'UPDATE_CONFIG',
+        payload: res.data.data,
+      });
+    } catch (err) {
+      console.log(err);
+      createNotification({
+        title: 'Error',
+        message: 'Failed to remove logo',
+      });
+    }
   };
 
   return (
@@ -70,6 +162,47 @@ export const UISettings = (): JSX.Element => {
           value={formData.customTitle}
           onChange={(e) => inputChangeHandler(e)}
         />
+      </InputGroup>
+
+      {/* === LOGO OPTIONS === */}
+      <SettingsHeadline text="Logo" />
+      <InputGroup>
+        <label htmlFor="logoUpload">Upload custom logo</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {logoPreview && (
+            <div>
+              <img
+                src={logoPreview}
+                alt="Logo preview"
+                style={{
+                  maxWidth: '120px',
+                  maxHeight: '120px',
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  border: '1px solid var(--color-primary)',
+                  padding: '5px',
+                }}
+              />
+            </div>
+          )}
+          <input
+            type="file"
+            id="logoUpload"
+            accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/x-icon"
+            onChange={logoFileChangeHandler}
+            ref={fileInputRef}
+          />
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Button click={uploadLogoHandler}>
+              Upload logo
+            </Button>
+            {formData.customLogo && (
+              <Button click={deleteLogoHandler}>
+                Remove logo
+              </Button>
+            )}
+          </div>
+        </div>
       </InputGroup>
 
       {/* === SEARCH OPTIONS === */}
