@@ -18,6 +18,7 @@ import { AppDetails } from './AppDetails/AppDetails';
 import { StyleSettings } from './StyleSettings/StyleSettings';
 import { GeneralSettings } from './GeneralSettings/GeneralSettings';
 import { DockerSettings } from './DockerSettings/DockerSettings';
+import { PowerBISettings } from './PowerBISettings/PowerBISettings';
 import { ProtectedRoute } from '../Routing/ProtectedRoute';
 
 // UI
@@ -65,6 +66,10 @@ export const Settings = (): JSX.Element => {
               component={GeneralSettings}
             />
             <ProtectedRoute path="/settings/interface" component={UISettings} />
+            <ProtectedRoute
+              path="/settings/powerbi"
+              component={PowerBISettings}
+            />
             <ProtectedRoute
               path="/settings/docker"
               component={DockerSettings}

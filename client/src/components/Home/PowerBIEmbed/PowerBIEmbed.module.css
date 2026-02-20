@@ -1,0 +1,33 @@
+.PowerBISection {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.ReportContainer {
+  margin-bottom: 2rem;
+}
+
+.ReportTitle {
+  color: var(--color-primary);
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.IframeWrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--color-accent);
+}
+
+.ReportIframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}

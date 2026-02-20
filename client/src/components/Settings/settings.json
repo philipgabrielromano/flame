@@ -21,6 +21,11 @@
       "authRequired": true
     },
     {
+      "name": "Power BI",
+      "dest": "/settings/powerbi",
+      "authRequired": true
+    },
+    {
       "name": "Docker",
       "dest": "/settings/docker",
       "authRequired": true
